@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <cstring>
 
-// Струтуры
+// Структуры
 struct Node {
   std::string value;
   Node* left;
