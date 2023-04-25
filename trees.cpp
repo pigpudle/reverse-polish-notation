@@ -42,41 +42,18 @@ int main() {
 
   // Преобразовать вектор в дерево
   Node* root = NULL;
-  Node* prevOpNode = NULL;
-  Node* nextLeft = NULL;
-  Node* nextRight = NULL;
+  std::stack<Node*> nodes;
   for (auto& element : elements) {
+    Node* node = new Node(element);
     if (isOperation(element)) {
-      // Звено операции объединяет под собой левое и правое звенья, которые содержат числа
-      // (либо другие поддеревья, которые будут вычисляться от листьев к корням)
-      Node* operationNode = new Node(element);
-      operationNode->left = nextLeft;
-      operationNode->right = nextRight;
-      // Очистить значения
-      nextLeft = NULL;
-      nextRight = NULL;
-      prevOpNode = operationNode;
-    } else {
-      // Ошибка, если не число
-      throwIfNotNumber(element);
-
-      // Сформировать новое звено с числом
-      Node* node = new Node(element);
-      // Сохранить звено так, что оно потом будет объединено под одной операцией
-      if (prevOpNode) {
-        nextLeft = prevOpNode;
-        prevOpNode = NULL;
-      }
-
-      if (!nextLeft) {
-        nextLeft = node;
-      } else {
-        nextRight = node;
-      }
+      node->right = nodes.top();
+      nodes.pop();
+      node->left = nodes.top();
+      nodes.pop();
     }
+    nodes.push(node);
   }
-
-  root = prevOpNode;
+  root = nodes.top();
 
   // Вывести дерево выражений
   std::cout << "Дерево выражения (инфиксная запись): ";
