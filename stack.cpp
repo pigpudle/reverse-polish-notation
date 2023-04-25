@@ -3,10 +3,11 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <stdexcept>
 
 // Имена функций, чтобы можно было их использовать до объявления
 bool isOperation(std::string element);
-float calculateOperation(char operation, float left, float right);
+double calculateOperation(char operation, double left, double right);
 
 int main() {
   // Мы ставим условие на разделение запятой,
@@ -44,15 +45,15 @@ int main() {
       // Если рассматриваемый элемент — знак операции,
       // то выполняется эта операция над операндами (числами), записанными левее знака операции
 
-      float right = std::stof(stack.top()); // получить верхний элемент и перевести его в float
+      double right = std::stof(stack.top()); // получить верхний элемент и перевести его в double
       stack.pop(); // удалить верхний элемент
 
-      float left = std::stof(stack.top()); // получить верхний элемент и перевести его в float
+      double left = std::stof(stack.top()); // получить верхний элемент и перевести его в double
       stack.pop(); // удалить верхний элемент
 
       // Провести операцию над числами
       char operation = nextElement[0];
-      float operationResult = calculateOperation(operation, left, right);
+      double operationResult = calculateOperation(operation, left, right);
       stack.push(std::to_string(operationResult));
     } else {
       // Если рассматриваемый элемент - операнд (число),
@@ -61,7 +62,7 @@ int main() {
     }
   }
 
-  float result = std::stof(stack.top());
+  double result = std::stof(stack.top());
 
   std::cout << "Результат: " << result << "\n";
 }
@@ -70,8 +71,8 @@ bool isOperation(std::string element) {
   return element == "+" || element == "-" || element == "*" || element == "/";
 }
 
-float calculateOperation(char operation, float left, float right) {
-  float operationResult;
+double calculateOperation(char operation, double left, double right) {
+  double operationResult;
   switch (operation)
   {
     case '+':
