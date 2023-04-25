@@ -5,7 +5,8 @@
 #include <sstream>
 
 // Имена функций, чтобы можно было их использовать до объявления
-bool isOperation(std::string token);
+bool isOperation(std::string element);
+float calculateOperation(char operation, float left, float right);
 
 int main() {
   // Мы ставим условие на разделение запятой,
@@ -13,16 +14,16 @@ int main() {
   // поэтому просто разбить посимвольно не получится.
   // Для разделения дробных чисел следует использовать точку (.)
   std::cout << "Введите выражение в обратной польской записи (разделяя запятой): ";
-  std::string expression;
-  std::getline(std::cin, expression); // берет полностью строку до конца, а не до пробелов
+  std::string input;
+  std::getline(std::cin, input); // берет полностью строку до конца, а не до пробелов
   std::cout << "\n";
 
   // Разбить строку на вектор символов (по запятым)
-  std::vector<std::string> tokens;
-  std::istringstream tokensStream(expression); // разделяет по пробелам
-  std::string token;
-  while (std::getline(tokensStream, token, ',')) {
-    tokens.push_back(token);
+  std::vector<std::string> elements;
+  std::istringstream elementsStream(input); // разделяет по пробелам
+  std::string element;
+  while (std::getline(elementsStream, element, ',')) {
+    elements.push_back(element);
   }
 
   // Посчитать результат
@@ -32,47 +33,31 @@ int main() {
   // а числа могут состоять из нескольких символов, поэтому тип char не подходит
   std::stack<std::string> stack;
 
-  while(!tokens.empty()) {
+  while(!elements.empty()) {
     // Обратная польская запись просматривается слева направо
     // Получить первый элемент
-    std::string nextToken = tokens.front();
+    std::string nextElement = elements.front();
     // Удалить первый элемент из вектора символов
-    tokens.erase(tokens.begin());
+    elements.erase(elements.begin());
 
-    if (isOperation(nextToken)) {
+    if (isOperation(nextElement)) {
       // Если рассматриваемый элемент — знак операции,
       // то выполняется эта операция над операндами (числами), записанными левее знака операции
 
-      float rightNumber = std::stof(stack.top()); // получить верхний элемент и перевести его в float
+      float right = std::stof(stack.top()); // получить верхний элемент и перевести его в float
       stack.pop(); // удалить верхний элемент
 
-      float leftNumber = std::stof(stack.top()); // получить верхний элемент и перевести его в float
+      float left = std::stof(stack.top()); // получить верхний элемент и перевести его в float
       stack.pop(); // удалить верхний элемент
 
       // Провести операцию над числами
-      char operation = nextToken[0];
-      float operationResult;
-      switch (operation)
-      {
-        case '+':
-          operationResult = leftNumber + rightNumber;
-          break;
-        case '-':
-          operationResult = leftNumber - rightNumber;
-          break;
-        case '*':
-          operationResult = leftNumber * rightNumber;
-          break;
-        case '/':
-          operationResult = leftNumber / rightNumber;
-          break;
-      }
-
+      char operation = nextElement[0];
+      float operationResult = calculateOperation(operation, left, right);
       stack.push(std::to_string(operationResult));
     } else {
       // Если рассматриваемый элемент - операнд (число),
       // то рассматривается следующий элемент
-      stack.push(nextToken);
+      stack.push(nextElement);
     }
   }
 
@@ -81,6 +66,26 @@ int main() {
   std::cout << "Результат: " << result << "\n";
 }
 
-bool isOperation(std::string token) {
-  return token == "+" || token == "-" || token == "*" || token == "/";
+bool isOperation(std::string element) {
+  return element == "+" || element == "-" || element == "*" || element == "/";
+}
+
+float calculateOperation(char operation, float left, float right) {
+  float operationResult;
+  switch (operation)
+  {
+    case '+':
+      operationResult = left + right;
+      break;
+    case '-':
+      operationResult = left - right;
+      break;
+    case '*':
+      operationResult = left * right;
+      break;
+    case '/':
+      operationResult = left / right;
+      break;
+  }
+  return operationResult;
 }
