@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <stdexcept>
+#include <cstring>
 
 // Струтуры
 struct Node {
@@ -13,26 +15,29 @@ struct Node {
 };
 
 // Имена функций, чтобы можно было их использовать до объявления
-bool isOperation(std::string token);
+bool isOperation(std::string element);
 void symPrint(Node* tree);
 float calculateTree(Node* tree);
+double calculateOperation(char operation, double left, double right);
+void throwIfNotNumber(std::string value);
 
 int main() {
-  // Мы ставим условие на разделение запятой,
+  // Мы ставим условие на разделение пробелом,
   // так как числа могут состоять из нескольких символов,
   // поэтому просто разбить посимвольно не получится.
-  // Для разделения дробных чисел следует использовать точку (.)
-  std::cout << "Введите выражение в обратной польской записи (разделяя запятой): ";
-  std::string expression;
-  std::getline(std::cin, expression); // берет полностью строку до конца, а не до пробелов
+  // Для разделения дробных чисел следует использовать точку или запятую (зависит от локали компьютера)
+  std::cout << "Замечание: для отделения дробной части используйте точку или запятую (зависит от локали компьютера). \n";
+  std::cout << "Введите выражение в обратной польской записи (разделяя пробелом): ";
+  std::string input;
+  std::getline(std::cin, input); // берет полностью строку до конца, а не до пробелов
   std::cout << "\n";
 
-  // Разбить строку на вектор символов (по запятым)
-  std::vector<std::string> tokens;
-  std::istringstream tokensStream(expression); // разделяет по пробелам
-  std::string token;
-  while (std::getline(tokensStream, token, ',')) {
-    tokens.push_back(token);
+  // Разбить строку на вектор символов (по пробелам)
+  std::vector<std::string> elements;
+  std::istringstream elementsStream(input); // разделяет по пробелам
+  std::string element;
+  while (std::getline(elementsStream, element, ' ')) {
+    elements.push_back(element);
   }
 
   // Преобразовать вектор в дерево
@@ -40,11 +45,11 @@ int main() {
   Node* prevOpNode = NULL;
   Node* nextLeft = NULL;
   Node* nextRight = NULL;
-  for (auto& token : tokens) {
-    if (isOperation(token)) {
+  for (auto& element : elements) {
+    if (isOperation(element)) {
       // Звено операции объединяет под собой левое и правое звенья, которые содержат числа
       // (либо другие поддеревья, которые будут вычисляться от листьев к корням)
-      Node* operationNode = new Node(token);
+      Node* operationNode = new Node(element);
       operationNode->left = nextLeft;
       operationNode->right = nextRight;
       // Очистить значения
@@ -52,8 +57,11 @@ int main() {
       nextRight = NULL;
       prevOpNode = operationNode;
     } else {
+      // Ошибка, если не число
+      throwIfNotNumber(element);
+
       // Сформировать новое звено с числом
-      Node* node = new Node(token);
+      Node* node = new Node(element);
       // Сохранить звено так, что оно потом будет объединено под одной операцией
       if (prevOpNode) {
         nextLeft = prevOpNode;
@@ -111,28 +119,51 @@ float calculateTree(Node* tree) {
     float right = calculateTree(tree->right);
 
     char operation = tree->value[0];
-    float operationResult;
-    switch (operation)
-    {
-      case '+':
-        operationResult = left + right;
-        break;
-      case '-':
-        operationResult = left - right;
-        break;
-      case '*':
-        operationResult = left * right;
-        break;
-      case '/':
-        operationResult = left / right;
-        break;
-    }
-    return operationResult;
+    return calculateOperation(operation, left, right);
   } else {
     return std::stof(tree->value);
   }
 }
 
-bool isOperation(std::string token) {
-  return token == "+" || token == "-" || token == "*" || token == "/";
+bool isOperation(std::string element) {
+  return element == "+" || element == "-" || element == "*" || element == "/";
+}
+
+double calculateOperation(char operation, double left, double right) {
+  double operationResult;
+  switch (operation)
+  {
+    case '+':
+      operationResult = left + right;
+      break;
+    case '-':
+      operationResult = left - right;
+      break;
+    case '*':
+      operationResult = left * right;
+      break;
+    case '/':
+      operationResult = left / right;
+      break;
+  }
+  return operationResult;
+}
+
+// Покажет ошибку и выйдет из программы, если введено не число
+void throwIfNotNumber(std::string value) {
+  const int length = value.length();
+ 
+  // Конвертация std::string в char*
+  char* charArray = new char[length + 1];
+  strcpy(charArray, value.c_str());
+
+  char* end;
+  double converted = strtod(charArray, &end);
+  if (*end) {
+    // Это не число
+    throw std::invalid_argument( "Строка содержит недопустимые символы!" );
+  }
+  else {
+    // Это число
+  }
 }
