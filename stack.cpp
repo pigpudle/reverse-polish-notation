@@ -25,13 +25,6 @@ int main() {
     tokens.push_back(token);
   }
 
-  // Вывести введенные элементы (для дебага)
-  std::cout << "Введенные элементы: \n";
-  for (auto& token : tokens) {
-    std::cout << token << std::endl;
-  }
-  std::cout << "\n";
-
   // Посчитать результат
 
   // Стэк для хранения операций,
