@@ -4,26 +4,29 @@
 #include <string>
 #include <sstream>
 #include <stdexcept>
+#include <cstring>
 
 // Имена функций, чтобы можно было их использовать до объявления
 bool isOperation(std::string element);
 double calculateOperation(char operation, double left, double right);
+void throwIfNotNumber(std::string value);
 
 int main() {
-  // Мы ставим условие на разделение запятой,
+  // Мы ставим условие на разделение пробелом,
   // так как числа могут состоять из нескольких символов,
   // поэтому просто разбить посимвольно не получится.
-  // Для разделения дробных чисел следует использовать точку (.)
-  std::cout << "Введите выражение в обратной польской записи (разделяя запятой): ";
+  // Для разделения дробных чисел следует использовать точку или запятую (зависит от локали компьютера)
+  std::cout << "Замечание: для отделения дробной части используйте точку или запятую (зависит от локали компьютера). \n";
+  std::cout << "Введите выражение в обратной польской записи (разделяя пробелом): ";
   std::string input;
   std::getline(std::cin, input); // берет полностью строку до конца, а не до пробелов
   std::cout << "\n";
 
-  // Разбить строку на вектор символов (по запятым)
+  // Разбить строку на вектор символов (по пробелам)
   std::vector<std::string> elements;
   std::istringstream elementsStream(input); // разделяет по пробелам
   std::string element;
-  while (std::getline(elementsStream, element, ',')) {
+  while (std::getline(elementsStream, element, ' ')) {
     elements.push_back(element);
   }
 
@@ -56,6 +59,7 @@ int main() {
       double operationResult = calculateOperation(operation, left, right);
       stack.push(std::to_string(operationResult));
     } else {
+      throwIfNotNumber(nextElement);
       // Если рассматриваемый элемент - операнд (число),
       // то рассматривается следующий элемент
       stack.push(nextElement);
@@ -89,4 +93,23 @@ double calculateOperation(char operation, double left, double right) {
       break;
   }
   return operationResult;
+}
+
+// Покажет ошибку и выйдет из программы, если введено не число
+void throwIfNotNumber(std::string value) {
+  const int length = value.length();
+ 
+  // Конвертация std::string в char*
+  char* charArray = new char[length + 1];
+  strcpy(charArray, value.c_str());
+
+  char* end;
+  double converted = strtod(charArray, &end);
+  if (*end) {
+    // Это не число
+    throw std::invalid_argument( "Строка содержит недопустимые символы!" );
+  }
+  else {
+    // Это число
+  }
 }
