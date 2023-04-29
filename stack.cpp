@@ -22,6 +22,11 @@ int main() {
   std::getline(std::cin, input); // берет полностью строку до конца, а не до пробелов
   std::cout << "\n";
 
+  // Проверка пустой строки
+  if (input.empty()) {
+    throw std::invalid_argument( "Строка не должна быть пустой!" );
+  }
+
   // Разбить строку на вектор символов (по пробелам)
   std::vector<std::string> elements;
   std::istringstream elementsStream(input); // разделяет по пробелам
