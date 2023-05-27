@@ -5,6 +5,10 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstring>
+#include <cstdio>
+#include <windows.h>
+
+#pragma execution_character_set( "utf-8" )
 
 // Имена функций, чтобы можно было их использовать до объявления
 bool isOperation(std::string element);
@@ -12,6 +16,8 @@ double calculateOperation(char operation, double left, double right);
 void throwIfNotNumber(std::string value);
 
 int main() {
+  SetConsoleOutputCP( 65001 );
+  
   // Мы ставим условие на разделение пробелом,
   // так как числа могут состоять из нескольких символов,
   // поэтому просто разбить посимвольно не получится.
